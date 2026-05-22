@@ -1,5 +1,33 @@
+import type {
+  CopilotGenerateRequest,
+  CopilotGenerateResponse,
+  CopilotOptimizeRequest,
+  CopilotOptimizeResponse,
+  CopilotSessionSnapshot,
+} from "../types/copilot";
 import type { GameContentPackage, GenerateRequest } from "../types/gameContent";
 import { apiUrl } from "./baseUrl";
+
+async function parseResponse<T>(res: Response): Promise<T> {
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const detail =
+      typeof data.detail === "string"
+        ? data.detail
+        : Array.isArray(data.detail)
+          ? data.detail
+              .map((d: { msg?: string; loc?: (string | number)[] }) => {
+                const field = Array.isArray(d.loc)
+                  ? d.loc.filter((x) => x !== "body").join(".")
+                  : "";
+                return field ? `${field}: ${d.msg ?? "校验失败"}` : (d.msg ?? "校验失败");
+              })
+              .join("; ")
+          : `Request failed (${res.status})`;
+    throw new ApiError(detail, res.status);
+  }
+  return data as T;
+}
 
 export class ApiError extends Error {
   constructor(
@@ -20,19 +48,59 @@ export async function generateContent(
     body: JSON.stringify(req),
   });
 
-  const data = await res.json().catch(() => ({}));
+  return parseResponse<GameContentPackage>(res);
+}
 
+export async function generateCopilot(
+  req: CopilotGenerateRequest
+): Promise<CopilotGenerateResponse> {
+  const res = await fetch(apiUrl("/api/copilot/generate"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  return parseResponse<CopilotGenerateResponse>(res);
+}
+
+export async function optimizeCopilot(
+  req: CopilotOptimizeRequest
+): Promise<CopilotOptimizeResponse> {
+  const res = await fetch(apiUrl("/api/copilot/optimize"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(req),
+  });
+  return parseResponse<CopilotOptimizeResponse>(res);
+}
+
+export async function exportCopilotMarkdown(
+  snapshot: CopilotSessionSnapshot
+): Promise<string> {
+  const res = await fetch(apiUrl("/api/copilot/export/markdown"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(snapshot),
+  });
+  const data = await parseResponse<{ markdown: string }>(res);
+  return data.markdown;
+}
+
+export async function exportCopilotTxt(
+  snapshot: CopilotSessionSnapshot
+): Promise<string> {
+  const res = await fetch(apiUrl("/api/copilot/export/txt"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(snapshot),
+  });
   if (!res.ok) {
-    const detail =
-      typeof data.detail === "string"
-        ? data.detail
-        : Array.isArray(data.detail)
-          ? data.detail.map((d: { msg?: string }) => d.msg).join("; ")
-          : `Request failed (${res.status})`;
-    throw new ApiError(detail, res.status);
+    const data = await res.json().catch(() => ({}));
+    throw new ApiError(
+      typeof data.detail === "string" ? data.detail : `Export failed (${res.status})`,
+      res.status
+    );
   }
-
-  return data as GameContentPackage;
+  return res.text();
 }
 
 export async function checkHealth(): Promise<{
@@ -55,15 +123,6 @@ export async function exportMarkdown(
     body: JSON.stringify(pkg),
   });
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new ApiError(
-      typeof data.detail === "string"
-        ? data.detail
-        : `Export failed (${res.status})`,
-      res.status
-    );
-  }
-
-  return typeof data.markdown === "string" ? data.markdown : "";
+  const data = await parseResponse<{ markdown: string }>(res);
+  return data.markdown;
 }

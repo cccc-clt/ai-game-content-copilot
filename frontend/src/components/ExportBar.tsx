@@ -1,109 +1,93 @@
-import { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { ApiError, exportMarkdown } from "../api/client";
 import type { GameContentPackage } from "../types/gameContent";
-import { downloadJson, downloadMarkdown } from "../utils/export";
+import { MarkdownPreviewModal } from "./export/MarkdownPreviewModal";
+import { useExportActions } from "./export/useExportActions";
 
 interface ExportBarProps {
   data: GameContentPackage;
+  placement?: "inline" | "header";
 }
 
-export function ExportBar({ data }: ExportBarProps) {
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [markdown, setMarkdown] = useState<string | null>(null);
-  const [exporting, setExporting] = useState(false);
-  const [exportError, setExportError] = useState<string | null>(null);
+const btnBase =
+  "rounded-lg text-xs font-semibold transition focus:outline-none focus:ring-2 focus:ring-sky-300/60";
 
-  useEffect(() => {
-    setMarkdown(null);
-    setExportError(null);
-  }, [data]);
+export function ExportBar({ data, placement = "inline" }: ExportBarProps) {
+  const isHeader = placement === "header";
+  const {
+    markdown,
+    previewOpen,
+    copyOk,
+    error,
+    handleCopyJson,
+    handleDownloadJson,
+    handlePreviewMarkdown,
+    handleDownloadMarkdown,
+    closePreview,
+  } = useExportActions(data);
 
-  const getMarkdown = async () => {
-    if (markdown) return markdown;
-    setExporting(true);
-    setExportError(null);
-    try {
-      const md = await exportMarkdown(data);
-      setMarkdown(md);
-      return md;
-    } catch (e) {
-      const message =
-        e instanceof ApiError
-          ? e.message
-          : e instanceof Error
-            ? e.message
-            : "Markdown 导出失败";
-      setExportError(message);
-      return null;
-    } finally {
-      setExporting(false);
-    }
-  };
+  const btnClass = isHeader
+    ? `${btnBase} border border-slate-200/90 bg-white/95 px-3 py-2 text-slate-700 shadow-sm hover:border-sky-300 hover:text-sky-700`
+    : `${btnBase} border border-slate-200 bg-white px-3 py-1.5 text-slate-600 shadow-sm hover:border-sky-200 hover:text-sky-700`;
+  const btnPrimary = isHeader
+    ? `${btnBase} bg-sky-500 px-3 py-2 text-white shadow-soft hover:bg-sky-600`
+    : `${btnBase} bg-sky-50 px-3 py-1.5 text-sky-700 ring-1 ring-sky-200/80 hover:bg-sky-100`;
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div
+        className={
+          isHeader
+            ? "flex flex-wrap items-center justify-end gap-2"
+            : "flex flex-wrap gap-2"
+        }
+      >
         <button
           type="button"
-          onClick={() => downloadJson(data)}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:border-sky-200 hover:text-sky-700"
+          onClick={() => void handleCopyJson()}
+          className={btnClass}
+          title="复制完整 JSON 到剪贴板"
+        >
+          {copyOk ? "已复制" : "复制 JSON"}
+        </button>
+        <button
+          type="button"
+          onClick={handleDownloadJson}
+          className={btnClass}
+          title="下载 JSON 文件"
         >
           下载 JSON
         </button>
         <button
           type="button"
-          onClick={async () => {
-            const md = await getMarkdown();
-            if (md) setPreviewOpen(true);
-          }}
-          disabled={exporting}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:border-sky-200 hover:text-sky-700"
+          onClick={handlePreviewMarkdown}
+          className={btnClass}
+          title="预览 PRD 风格 Markdown"
         >
-          {exporting ? "导出中…" : "预览 Markdown"}
+          预览 MD
         </button>
         <button
           type="button"
-          onClick={async () => {
-            const md = await getMarkdown();
-            if (md) downloadMarkdown(md, data);
-          }}
-          disabled={exporting}
-          className="rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 ring-1 ring-sky-200/80 transition hover:bg-sky-100"
+          onClick={handleDownloadMarkdown}
+          className={btnPrimary}
+          title="下载 Markdown 文件"
         >
-          下载 Markdown
+          下载 MD
         </button>
       </div>
-      {exportError && (
-        <p className="mt-2 text-xs text-rose-600">{exportError}</p>
+
+      {error && (
+        <p
+          className={`text-xs text-rose-600 ${isHeader ? "mt-2 text-right" : "mt-2"}`}
+        >
+          {error}
+        </p>
       )}
 
-      {previewOpen && markdown && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
-          onClick={() => setPreviewOpen(false)}
-        >
-          <div
-            className="max-h-[85vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-soft"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
-              <h3 className="text-sm font-semibold text-slate-800">
-                Markdown 预览
-              </h3>
-              <button
-                type="button"
-                onClick={() => setPreviewOpen(false)}
-                className="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100"
-              >
-                关闭
-              </button>
-            </div>
-            <div className="prose prose-sm max-w-none overflow-y-auto px-5 py-4 prose-headings:text-slate-800 prose-p:text-slate-600">
-              <ReactMarkdown>{markdown}</ReactMarkdown>
-            </div>
-          </div>
-        </div>
+      {previewOpen && (
+        <MarkdownPreviewModal
+          markdown={markdown}
+          title="游戏内容策划 PRD · 预览"
+          onClose={closePreview}
+        />
       )}
     </>
   );

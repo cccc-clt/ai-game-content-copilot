@@ -1,17 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import { ApiError, checkHealth, generateContent } from "./api/client";
-import { ExamplePlaceholder } from "./components/ExamplePlaceholder";
-import { GenerateStatus } from "./components/GenerateStatus";
-import { IdeaForm, type IdeaFormValues } from "./components/IdeaForm";
-import { ResultPanel } from "./components/ResultPanel";
+import { useEffect, useState } from "react";
+import { checkHealth } from "./api/client";
+import { CopilotWorkspace } from "./components/copilot/CopilotWorkspace";
+import { LegacyPackageMode } from "./components/legacy/LegacyPackageMode";
 import { Footer } from "./components/layout/Footer";
 import { Header } from "./components/layout/Header";
-import type { GameContentPackage } from "./types/gameContent";
+import { HomeHero } from "./components/layout/HomeHero";
+
+type TabId = "copilot" | "legacy";
 
 export default function App() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<GameContentPackage | null>(null);
+  const [tab, setTab] = useState<TabId>("copilot");
   const [apiReady, setApiReady] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -20,54 +18,62 @@ export default function App() {
       .catch(() => setApiReady(null));
   }, []);
 
-  const handleSubmit = useCallback(async (values: IdeaFormValues) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const pkg = await generateContent(values);
-      setResult(pkg);
-    } catch (e) {
-      if (e instanceof ApiError) {
-        setError(e.message);
-      } else {
-        setError(e instanceof Error ? e.message : "生成失败，请稍后重试");
-      }
-      setResult(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-slate-50 via-sky-50/30 to-slate-50">
       <Header />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
         {apiReady === false && (
-          <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
             后端环境变量未配置完整：请将{" "}
-            <code className="text-xs">.env.example</code> 复制为{" "}
-            <code className="text-xs">backend/.env</code>，并填写{" "}
-            <code className="text-xs">OPENAI_API_KEY</code> 与{" "}
-            <code className="text-xs">OPENAI_MODEL</code>。
+            <code className="text-xs font-medium">.env.example</code> 复制为项目根目录{" "}
+            <code className="text-xs font-medium">.env</code>，并填写{" "}
+            <code className="text-xs font-medium">OPENAI_API_KEY</code> 与{" "}
+            <code className="text-xs font-medium">OPENAI_MODEL</code>。
           </div>
         )}
-        <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
-          <div>
-            <IdeaForm loading={loading} onSubmit={handleSubmit} />
-            {error && (
-              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                {error}
-              </div>
-            )}
-          </div>
-          <div>
-            {loading && <GenerateStatus />}
-            {!loading && result && <ResultPanel data={result} />}
-            {!loading && !result && <ExamplePlaceholder />}
-          </div>
+
+        <HomeHero />
+
+        <div className="mb-6 flex gap-2 rounded-xl border border-slate-200 bg-white/80 p-1 shadow-sm">
+          <TabButton
+            active={tab === "copilot"}
+            onClick={() => setTab("copilot")}
+            label="内容 Copilot"
+          />
+          <TabButton
+            active={tab === "legacy"}
+            onClick={() => setTab("legacy")}
+            label="内容包模式"
+          />
         </div>
+
+        {tab === "copilot" ? <CopilotWorkspace /> : <LegacyPackageMode />}
       </main>
       <Footer />
     </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+        active
+          ? "bg-sky-600 text-white shadow-sm"
+          : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+      }`}
+    >
+      {label}
+    </button>
   );
 }

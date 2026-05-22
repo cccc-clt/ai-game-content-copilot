@@ -9,7 +9,7 @@ export function ExamplePlaceholder() {
       <ul className="mt-4 space-y-2 text-xs text-slate-500">
         <li className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
-          7 大内容模块一键生成
+          8 大内容模块一键生成
         </li>
         <li className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />

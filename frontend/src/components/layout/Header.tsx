@@ -7,15 +7,15 @@ export function Header() {
             AI
           </div>
           <div>
-            <h1 className="text-lg font-semibold tracking-tight text-slate-800 sm:text-xl">
-              AI Game Content Copilot
+            <h1 className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
+              AI Game Content Copilot｜AI 游戏内容生产助手
             </h1>
-            <p className="text-sm text-slate-500">
-              从创意到可落地的游戏内容包
+            <p className="text-sm text-slate-600">
+              为游戏策划、剧情文案和内容运营打造的 AI 内容生产 Copilot
             </p>
           </div>
         </div>
-        <span className="hidden rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200/80 sm:inline">
+        <span className="hidden rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 ring-1 ring-amber-200/80 sm:inline">
           原创虚构 · 无版权 IP
         </span>
       </div>

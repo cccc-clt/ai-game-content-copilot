@@ -30,7 +30,9 @@
 
 - Frontend: React + Vite + Tailwind CSS
 
-- Backend: FastAPI
+- Backend: FastAPI（根目录 `src/` + `python app.py` 启动）
+
+- Legacy: `backend/app/main.py` 为兼容 shim，新代码请写在 `src/`
 
 - AI API: OpenAI-compatible API
 

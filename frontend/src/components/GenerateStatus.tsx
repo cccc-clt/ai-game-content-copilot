@@ -3,29 +3,37 @@ import { useEffect, useState } from "react";
 const STEPS = [
   "正在解析游戏创意…",
   "正在构建剧情活动方案…",
-  "正在设计 NPC 人设卡…",
+  "正在搭建世界观设定…",
+  "正在设计 NPC 人设与记忆点…",
   "正在生成分支对话树…",
   "正在编排任务流程…",
   "正在模拟玩家反馈…",
   "正在进行一致性检查…",
-  "正在撰写 PRD 文档…",
+  "正在生成优化建议…",
 ];
 
-export function GenerateStatus() {
+interface GenerateStatusProps {
+  label?: string;
+  steps?: string[];
+}
+
+export function GenerateStatus({ label, steps = STEPS }: GenerateStatusProps) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % STEPS.length);
+      setIndex((i) => (i + 1) % steps.length);
     }, 2200);
     return () => clearInterval(id);
-  }, []);
+  }, [steps.length]);
 
   return (
     <div className="rounded-2xl border border-sky-100 bg-white/80 p-6 shadow-card backdrop-blur">
       <div className="mb-4 flex items-center gap-3">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-sky-200 border-t-sky-500" />
-        <p className="text-sm font-medium text-slate-700">{STEPS[index]}</p>
+        <p className="text-sm font-medium text-slate-700">
+          {label ?? steps[index]}
+        </p>
       </div>
       <div className="space-y-3">
         {[1, 2, 3, 4].map((i) => (
@@ -36,7 +44,7 @@ export function GenerateStatus() {
           />
         ))}
       </div>
-      <p className="mt-4 text-xs text-slate-400">
+      <p className="mt-4 text-xs text-slate-500">
         通常需要 15–60 秒，取决于模型与网络
       </p>
     </div>

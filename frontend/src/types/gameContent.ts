@@ -13,46 +13,89 @@ export interface MetaInfo {
   title: string;
   tagline: string;
   genre: string;
-  targetAudience: string;
-  oneLinePitch: string;
+  target_audience: string;
+  one_line_pitch: string;
+  core_experience: string;
+}
+
+export interface EmotionBeat {
+  phase: string;
+  mood: string;
+  player_goal: string;
+  intensity: number;
 }
 
 export interface EventAct {
   title: string;
   summary: string;
-  keyBeats: string[];
+  key_beats: string[];
+  player_experience: string;
 }
 
-export interface EventPlan {
+export interface GameEvent {
+  title: string;
+  theme: string;
   hook: string;
+  duration: string;
+  emotion_curve: EmotionBeat[];
   acts: EventAct[];
   rewards: string[];
-  duration: string;
+  playability_highlights: string[];
+  spread_points: string[];
 }
 
-export interface NpcCard {
+export interface WorldLocation {
+  name: string;
+  description: string;
+  mood: string;
+}
+
+export interface WorldFaction {
+  name: string;
+  agenda: string;
+  player_relation: string;
+}
+
+export interface WorldSetting {
+  overview: string;
+  era: string;
+  geography: string;
+  locations: WorldLocation[];
+  factions: WorldFaction[];
+  core_conflict: string;
+  aesthetic_tone: string;
+  memory_anchors: string[];
+}
+
+export interface NpcProfile {
   name: string;
   role: string;
   personality: string;
+  memory_hook: string;
+  emotional_arc: string;
   goals: string[];
-  speechStyle: string;
+  speech_style: string;
+  relationship_notes: string;
 }
 
 export interface DialogueChoice {
   label: string;
-  targetId: string;
+  target_id: string;
+  emotional_tone: string;
 }
 
 export interface DialogueNode {
   id: string;
   speaker: string;
   text: string;
+  emotion: string;
   choices: DialogueChoice[];
 }
 
 export interface DialogueTree {
-  rootId: string;
+  root_id: string;
   nodes: DialogueNode[];
+  design_notes: string;
 }
 
 export interface QuestStep {
@@ -60,75 +103,100 @@ export interface QuestStep {
   title: string;
   objective: string;
   triggers: string[];
+  player_emotion: string;
+  playability_note: string;
 }
 
 export interface QuestFlow {
   steps: QuestStep[];
+  loop_summary: string;
 }
 
 export interface PlayerPersona {
   name: string;
   description: string;
+  play_style: string;
 }
 
 export interface PredictedReaction {
-  personaName: string;
+  persona_name: string;
   sentiment: string;
+  emotion_tag: string;
   quote: string;
+  retention_risk: string;
+  shareability: string;
 }
 
 export interface PlayerFeedback {
   personas: PlayerPersona[];
-  predictedReactions: PredictedReaction[];
+  predicted_reactions: PredictedReaction[];
+  overall_sentiment: string;
+  experience_highlights: string[];
 }
 
 export interface ConsistencyIssue {
   severity: string;
   description: string;
   location: string;
+  dimension: string;
+}
+
+export interface DimensionScore {
+  dimension: string;
+  score: number;
+  note: string;
 }
 
 export interface ConsistencyCheck {
   score: number;
   issues: ConsistencyIssue[];
-  suggestions: string[];
+  dimension_scores: DimensionScore[];
+  summary: string;
 }
 
-export interface PrdDocument {
-  overview: string;
-  userStories: string[];
-  metrics: string[];
-  risks: string[];
-  mvpScope: string;
+export interface ImprovementItem {
+  priority: string;
+  category: string;
+  title: string;
+  detail: string;
+  expected_impact: string;
+}
+
+export interface ImprovementSuggestions {
+  items: ImprovementItem[];
+  next_iteration_focus: string;
 }
 
 export interface GameContentPackage {
   meta: MetaInfo;
-  eventPlan: EventPlan;
-  npcs: NpcCard[];
-  dialogueTree: DialogueTree;
-  questFlow: QuestFlow;
-  playerFeedback: PlayerFeedback;
-  consistencyCheck: ConsistencyCheck;
-  prd: PrdDocument;
-  generatedAt?: string;
+  game_event: GameEvent;
+  world_setting: WorldSetting;
+  npc_profiles: NpcProfile[];
+  dialogue_tree: DialogueTree;
+  quest_flow: QuestFlow;
+  player_feedback: PlayerFeedback;
+  consistency_check: ConsistencyCheck;
+  improvement_suggestions: ImprovementSuggestions;
+  generated_at?: string;
 }
 
 export type SectionId =
   | "event"
+  | "world"
   | "npcs"
   | "dialogue"
   | "quest"
   | "feedback"
   | "consistency"
-  | "prd";
+  | "improve";
 
 export const SECTION_TABS: { id: SectionId; label: string }[] = [
   { id: "event", label: "剧情活动" },
+  { id: "world", label: "世界观" },
   { id: "npcs", label: "NPC 人设" },
   { id: "dialogue", label: "分支对话" },
   { id: "quest", label: "任务流程" },
   { id: "feedback", label: "玩家反馈" },
   { id: "consistency", label: "一致性" },
-  { id: "prd", label: "PRD" },
+  { id: "improve", label: "优化建议" },
 ];
