@@ -49,7 +49,6 @@
 |:---:|:---:|:---:|
 | ![评分](docs/screenshots/evaluation.png) | ![优化](docs/screenshots/optimize.png) | ![内容包](docs/screenshots/legacy-package.png) |
 
-> **截图说明**：`three-versions.png` 对应三版本比选主视图；若需与文档命名一致，可另存为 `three-versions1.png` 并更新上方链接。导出流程截图 `export.png` 尚未收录，见文末 [待补充截图](#待补充截图)。
 
 **推荐演示路径（约 2 分钟）**  
 `示例 1：角色台词` → `生成 A/B/C` → 选择 **版本 B** → `继续优化` → `导出 Markdown`
@@ -370,30 +369,8 @@ VITE_API_BASE_URL=http://127.0.0.1:8001
 
 ---
 
-## 15. 求职展示说明
 
-本项目用于展示以下能力，适合写入 **AI 产品 / AIGC 游戏内容** 方向实习或校招作品集：
-
-- **AI 产品思维**：将游戏文本生产拆解为结构化工作流，而非聊天交互
-- **AIGC 场景理解**：七类手游向文本 + 可选 8 模块内容包
-- **Prompt Engineering**：分场景模板、人设注入、JSON 约束
-- **AI Evaluation**：五维量化评分支撑版本决策
-- **前后端原型**：React 产品 Demo + FastAPI + Pydantic 契约对齐
-
-**简历一句话（可直接使用）**：
-
-> 独立设计并实现 AI 游戏内容 Copilot，支持七类游戏文本的三版本生成、AI 五维评分、版本优化与 Markdown/TXT 导出，并保留 8 模块内容包高级模式。
-
-**演示前检查清单**：
-
-- [ ] 根目录 `.env` 已配置有效 `OPENAI_API_KEY` 与 `OPENAI_MODEL`
-- [ ] http://127.0.0.1:8001/api/health 返回 `"ready": true`
-- [ ] 前端 http://localhost:5173 可访问且无 CORS 报错
-- [ ] README 截图已替换为最新界面（见 [待补充截图](#待补充截图)）
-
----
-
-## 16. Roadmap
+## 15. Roadmap
 
 - [ ] **SSE 流式生成**：降低长文本等待焦虑，展示生成进度
 - [ ] **历史项目保存**：SQLite 存储多轮会话与导出记录
@@ -408,19 +385,9 @@ VITE_API_BASE_URL=http://127.0.0.1:8001
 
 ---
 
-## 17. License
+## 16. License
 
 本项目采用 [MIT License](LICENSE) 开源。如仓库尚未包含 `LICENSE` 文件，可按 MIT 惯例补充。
 
 ---
 
-## 待补充截图
-
-以下截图建议补全后更新 README 链接，以提升作品集完整度：
-
-| 文件名 | 建议画面 | 当前状态 |
-|--------|----------|----------|
-| `export.png` | 导出 Markdown/TXT 成功或预览弹窗 | ❌ 待补充 |
-| `three-versions1.png` | 可与 `three-versions.png` 二选一或重命名统一 | ⚠️ 已有 `three-versions.png`，命名可选统一 |
-
-已有截图：`copilot-home.png`、`three-versions.png`、`three-versions2.png`、`evaluation.png`、`optimize.png`、`legacy-package.png`。
