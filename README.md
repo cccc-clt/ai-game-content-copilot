@@ -45,7 +45,7 @@ cp .env.example backend/.env
 |------|------|
 | `OPENAI_API_KEY` | API 密钥（勿提交到 Git） |
 | `OPENAI_BASE_URL` | 兼容 API 根地址，默认 `https://api.openai.com/v1` |
-| `OPENAI_MODEL` | 模型名称 |
+| `OPENAI_MODEL` | 模型名称，必须替换 `your-model-name` 占位值 |
 | `CORS_ORIGINS` | 可选，默认 `http://localhost:5173` |
 
 ### 2. 启动后端
@@ -95,7 +95,9 @@ npm run dev
 ```json
 {
   "status": "ok",
-  "apiKeyConfigured": true
+  "apiKeyConfigured": true,
+  "modelConfigured": true,
+  "ready": true
 }
 ```
 
@@ -136,7 +138,7 @@ npm run dev
 }
 ```
 
-未配置 API Key 时返回 `503`。
+未配置 API Key 或模型名称仍为占位值时返回 `503`。
 
 ### `POST /api/export/markdown`
 

@@ -1,11 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { ApiError, exportMarkdown } from "../api/client";
 import type { GameContentPackage } from "../types/gameContent";
-import {
-  downloadJson,
-  downloadMarkdown,
-  packageToMarkdown,
-} from "../utils/export";
+import { downloadJson, downloadMarkdown } from "../utils/export";
 
 interface ExportBarProps {
   data: GameContentPackage;
@@ -13,7 +10,36 @@ interface ExportBarProps {
 
 export function ExportBar({ data }: ExportBarProps) {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const markdown = packageToMarkdown(data);
+  const [markdown, setMarkdown] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMarkdown(null);
+    setExportError(null);
+  }, [data]);
+
+  const getMarkdown = async () => {
+    if (markdown) return markdown;
+    setExporting(true);
+    setExportError(null);
+    try {
+      const md = await exportMarkdown(data);
+      setMarkdown(md);
+      return md;
+    } catch (e) {
+      const message =
+        e instanceof ApiError
+          ? e.message
+          : e instanceof Error
+            ? e.message
+            : "Markdown 导出失败";
+      setExportError(message);
+      return null;
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <>
@@ -27,21 +53,32 @@ export function ExportBar({ data }: ExportBarProps) {
         </button>
         <button
           type="button"
-          onClick={() => setPreviewOpen(true)}
+          onClick={async () => {
+            const md = await getMarkdown();
+            if (md) setPreviewOpen(true);
+          }}
+          disabled={exporting}
           className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:border-sky-200 hover:text-sky-700"
         >
-          预览 Markdown
+          {exporting ? "导出中…" : "预览 Markdown"}
         </button>
         <button
           type="button"
-          onClick={() => downloadMarkdown(markdown, data)}
+          onClick={async () => {
+            const md = await getMarkdown();
+            if (md) downloadMarkdown(md, data);
+          }}
+          disabled={exporting}
           className="rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-700 ring-1 ring-sky-200/80 transition hover:bg-sky-100"
         >
           下载 Markdown
         </button>
       </div>
+      {exportError && (
+        <p className="mt-2 text-xs text-rose-600">{exportError}</p>
+      )}
 
-      {previewOpen && (
+      {previewOpen && markdown && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
           onClick={() => setPreviewOpen(false)}

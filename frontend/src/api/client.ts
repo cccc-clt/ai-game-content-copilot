@@ -38,8 +38,32 @@ export async function generateContent(
 export async function checkHealth(): Promise<{
   status: string;
   apiKeyConfigured: boolean;
+  modelConfigured: boolean;
+  ready: boolean;
 }> {
   const res = await fetch(apiUrl("/api/health"));
   if (!res.ok) throw new ApiError("Health check failed", res.status);
   return res.json();
+}
+
+export async function exportMarkdown(
+  pkg: GameContentPackage
+): Promise<string> {
+  const res = await fetch(apiUrl("/api/export/markdown"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(pkg),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(
+      typeof data.detail === "string"
+        ? data.detail
+        : `Export failed (${res.status})`,
+      res.status
+    );
+  }
+
+  return typeof data.markdown === "string" ? data.markdown : "";
 }

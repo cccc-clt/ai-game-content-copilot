@@ -33,6 +33,9 @@ def build_system_prompt() -> str:
 4. 内容要具体可执行，适合策划与 UGC 团队直接使用。
 
 {_SCHEMA_HINT}
+
+严格参考以下 JSON Schema，字段名必须使用别名中的 camelCase：
+{get_schema_json()}
 """
 
 

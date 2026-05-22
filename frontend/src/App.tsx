@@ -16,7 +16,7 @@ export default function App() {
 
   useEffect(() => {
     checkHealth()
-      .then((h) => setApiReady(h.apiKeyConfigured))
+      .then((h) => setApiReady(h.ready ?? h.apiKeyConfigured))
       .catch(() => setApiReady(null));
   }, []);
 
@@ -44,9 +44,11 @@ export default function App() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
         {apiReady === false && (
           <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            后端未配置 API Key：请将 <code className="text-xs">.env.example</code>{" "}
-            复制为 <code className="text-xs">backend/.env</code> 并填写{" "}
-            <code className="text-xs">OPENAI_API_KEY</code>。
+            后端环境变量未配置完整：请将{" "}
+            <code className="text-xs">.env.example</code> 复制为{" "}
+            <code className="text-xs">backend/.env</code>，并填写{" "}
+            <code className="text-xs">OPENAI_API_KEY</code> 与{" "}
+            <code className="text-xs">OPENAI_MODEL</code>。
           </div>
         )}
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">

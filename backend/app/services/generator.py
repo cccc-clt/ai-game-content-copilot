@@ -17,9 +17,25 @@ def _strip_markdown_fence(text: str) -> str:
     return text
 
 
+def _extract_json_object(text: str) -> dict:
+    cleaned = _strip_markdown_fence(text)
+    decoder = json.JSONDecoder()
+
+    for i, char in enumerate(cleaned):
+        if char != "{":
+            continue
+        try:
+            data, _ = decoder.raw_decode(cleaned[i:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict):
+            return data
+
+    raise json.JSONDecodeError("No JSON object found", cleaned, 0)
+
+
 def _parse_package(raw: str) -> GameContentPackage:
-    cleaned = _strip_markdown_fence(raw)
-    data = json.loads(cleaned)
+    data = _extract_json_object(raw)
     return GameContentPackage.model_validate(data)
 
 

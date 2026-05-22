@@ -28,20 +28,28 @@ export function DialogueTreeSection({ data }: { data: DialogueTree }) {
           <p className="mt-2 text-sm leading-relaxed text-slate-700">{node.text}</p>
           {node.choices.length > 0 && (
             <ul className="mt-3 space-y-1.5 border-t border-slate-100 pt-3">
-              {node.choices.map((c, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-2 text-xs text-slate-600"
-                >
-                  <span className="rounded bg-emerald-50 px-2 py-0.5 text-emerald-700 ring-1 ring-emerald-100">
-                    {c.label}
-                  </span>
-                  <span className="text-slate-400">→</span>
-                  <span className="font-mono text-sky-600">
-                    {nodeMap.has(c.targetId) ? c.targetId : c.targetId}
-                  </span>
-                </li>
-              ))}
+              {node.choices.map((c, i) => {
+                const targetExists = nodeMap.has(c.targetId);
+                return (
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 text-xs text-slate-600"
+                  >
+                    <span className="rounded bg-emerald-50 px-2 py-0.5 text-emerald-700 ring-1 ring-emerald-100">
+                      {c.label}
+                    </span>
+                    <span className="text-slate-400">→</span>
+                    <span
+                      className={`font-mono ${
+                        targetExists ? "text-sky-600" : "text-rose-600"
+                      }`}
+                      title={targetExists ? "目标节点" : "未找到目标节点"}
+                    >
+                      {c.targetId}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

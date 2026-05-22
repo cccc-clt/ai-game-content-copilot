@@ -28,6 +28,15 @@ class Settings(BaseSettings):
         key = self.openai_api_key.strip()
         return bool(key) and key != "your_api_key_here"
 
+    @property
+    def model_configured(self) -> bool:
+        model = self.openai_model.strip()
+        return bool(model) and model != "your-model-name"
+
+    @property
+    def ready(self) -> bool:
+        return self.api_key_configured and self.model_configured
+
 
 @lru_cache
 def get_settings() -> Settings:

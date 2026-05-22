@@ -15,6 +15,8 @@ def health() -> dict:
     return {
         "status": "ok",
         "apiKeyConfigured": settings.api_key_configured,
+        "modelConfigured": settings.model_configured,
+        "ready": settings.ready,
     }
 
 
@@ -29,6 +31,14 @@ def generate(req: GenerateRequest) -> GameContentPackage:
                 "Copy .env.example to backend/.env and set your API key."
             ),
         )
+    if not settings.model_configured:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "OPENAI_MODEL is not configured. "
+                "Set a real model name in backend/.env."
+            ),
+        )
     try:
         return generate_content(req, settings)
     except ValueError as e:
@@ -36,7 +46,7 @@ def generate(req: GenerateRequest) -> GameContentPackage:
     except Exception as e:
         raise HTTPException(
             status_code=502,
-            detail=f"Generation failed: {e}",
+            detail="Generation failed. Check backend logs and provider settings.",
         ) from e
 
 
