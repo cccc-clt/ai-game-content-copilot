@@ -32,13 +32,14 @@
 - [7. 技术栈](#7-技术栈)
 - [8. 产品流程](#8-产品流程)
 - [9. 项目结构](#9-项目结构)
-- [10. 本地运行](#10-本地运行)
-- [11. 环境变量配置](#11-环境变量配置)
-- [12. API 概览](#12-api-概览)
-- [13. 当前限制](#13-当前限制)
-- [14. 安全与隐私说明](#14-安全与隐私说明)
-- [15. Roadmap](#15-roadmap)
-- [16. License](#16-license)
+- [10. 安装教程（本地运行）](#10-安装教程本地运行)
+- [11. 环境变量说明](#11-环境变量说明)
+- [12. 常见问题排查](#12-常见问题排查)
+- [13. API 概览](#13-api-概览)
+- [14. 当前限制](#14-当前限制)
+- [15. 安全与隐私说明](#15-安全与隐私说明)
+- [16. Roadmap](#16-roadmap)
+- [17. License](#17-license)
 
 ---
 
@@ -56,7 +57,7 @@
 | **导出** | Markdown / TXT 策划文档 |
 | **高级模式** | 输入游戏创意，一次生成 8 大模块结构化内容包 |
 
-> **在线 Demo**：暂未部署，请按 [§10 本地运行](#10-本地运行) 在本地体验完整流程。  
+> **体验方式**：按 [§10 安装教程（本地运行）](#10-安装教程本地运行) 在本地启动前后端。  
 > 所有生成内容为 **AI 原创虚构**，不使用真实游戏 IP、角色名或版权素材。
 
 ### 界面截图
@@ -245,17 +246,32 @@ AI Game Content Copilot/
 
 ---
 
-## 10. 本地运行
+## 10. 安装教程（本地运行）
+
+按以下步骤可在本机完整跑通前后端。变量说明见 [§11 环境变量说明](#11-环境变量说明)；报错见 [§12 常见问题排查](#12-常见问题排查)。
 
 ### 环境要求
 
-- **Python 3.11+**
-- **Node.js 18+**
-- 任意 **OpenAI 兼容** API
+| 依赖 | 版本要求 | 用途 |
+|------|----------|------|
+| **Python** | 3.11+ | FastAPI 后端 |
+| **Node.js** | 18+ | Vite 前端开发服务器 |
+| **npm** | 随 Node 安装 | 安装前端依赖 |
+| **Git** | 任意较新版本 | 克隆仓库 |
+| **OpenAI 兼容 API** | 需自备 Key | 文本生成与评分 |
 
-### 10.1 配置环境变量
+### 10.1 克隆仓库并进入目录
 
-在 **项目根目录**：
+```bash
+git clone https://github.com/cccc-clt/AI-Game-Content-Copilot.git
+cd AI-Game-Content-Copilot
+```
+
+> 将 `<your-username>` 替换为你的 GitHub 用户名；若本地已有源码，直接进入项目根目录即可。
+
+### 10.2 配置后端环境变量
+
+在 **项目根目录**（与 `app.py` 同级）创建 `.env`：
 
 ```bash
 # Windows
@@ -265,11 +281,11 @@ copy .env.example .env
 cp .env.example .env
 ```
 
-编辑根目录 `.env`（勿提交 Git），填入有效 Key 与模型名。
+编辑 `.env`，至少填写有效的 `OPENAI_API_KEY` 与 `OPENAI_MODEL`（详见 [§11](#11-环境变量说明)）。**勿将 `.env` 提交到 Git。**
 
-### 10.2 启动后端
+### 10.3 创建虚拟环境并安装后端依赖
 
-**必须在项目根目录执行**（保证 `import src` 与 `app` 模块正确）：
+**必须在项目根目录执行**（保证 `import src` 与 `app:app` 入口正确）：
 
 ```bash
 python -m venv .venv
@@ -281,22 +297,28 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
-uvicorn app:app --reload --host 127.0.0.1 --port 8001
 ```
 
-也可使用：`python app.py`
+### 10.4 启动 FastAPI 后端
+
+虚拟环境激活后，仍在项目根目录：
+
+```bash
+uvicorn app:app --reload --host 127.0.0.1 --port 8000
+```
+
+也可使用：`python app.py`（默认监听 `127.0.0.1:8000`）
 
 | 检查项 | 地址 |
 |--------|------|
-| 健康检查 | http://127.0.0.1:8001/api/health |
+| 健康检查 | http://127.0.0.1:8000/api/health |
 | 期望结果 | `"ready": true`（表示 Key 与 Model 已正确配置） |
 
-> 勿在 `backend/` 目录执行 `uvicorn app:app`；根目录 `app.py` 为当前入口。  
-> 若 8001 端口占用，可改用 `--port 8002`，并同步修改 `frontend/.env` 中的 `VITE_API_BASE_URL`。
+> **注意**：勿在 `backend/` 目录启动；当前入口为根目录 `app.py` → `src.api.main:app`。
 
-### 10.3 启动前端
+### 10.5 安装前端依赖并启动开发服务器
 
-新开终端：
+**新开一个终端**，进入 `frontend/`：
 
 ```bash
 cd frontend
@@ -311,35 +333,76 @@ npm install
 npm run dev
 ```
 
+确认 `frontend/.env` 中 API 地址与后端一致：
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
 | 访问 | 地址 |
 |------|------|
 | 前端界面 | http://localhost:5173 |
-| 后端 API | http://127.0.0.1:8001 |
+| 后端 API | http://localhost:8000 |
+
+### 10.6 验证安装成功
+
+1. 浏览器打开 http://127.0.0.1:8000/api/health ，确认 `ready` 为 `true`。  
+2. 打开 http://localhost:5173 ，点击「示例 1：角色台词」→「生成 A/B/C」，能出现三版本卡片即表示链路正常。
 
 ---
 
-## 11. 环境变量配置
+## 11. 环境变量说明
 
 ### 根目录 `.env`（后端）
 
 | 变量 | 说明 |
 |------|------|
-| `OPENAI_API_KEY` | API 密钥；勿使用占位值 `your_api_key_here` |
-| `OPENAI_BASE_URL` | 兼容 API 根地址，默认 `https://api.openai.com/v1` |
+| `OPENAI_API_KEY` | OpenAI 兼容 API 密钥；勿使用占位值 `your_api_key_here` |
+| `OPENAI_BASE_URL` | API 根地址，默认 `https://api.openai.com/v1` |
 | `OPENAI_MODEL` | 模型名称；须替换 `your-model-name` |
-| `CORS_ORIGINS` | 可选；逗号分隔前端源，默认已含 `http://localhost:5173` |
+| `CORS_ORIGINS` | 可选；英文逗号分隔的前端源，默认已含 `http://localhost:5173` |
+
+`CORS_ORIGINS` 本地示例：
+
+```env
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
 
 ### `frontend/.env`（前端）
 
+| 变量 | 说明 |
+|------|------|
+| `VITE_API_BASE_URL` | 本地后端根地址，**不要**以 `/` 结尾 |
+
 ```env
-VITE_API_BASE_URL=http://127.0.0.1:8001
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
-**安全提醒**：`.env`、真实 API Key、用户输入内容均 **不要提交到 GitHub**。仓库仅保留 `.env.example` 作为模板。
+**安全提醒**：
+
+- **不要**在前端配置 `OPENAI_API_KEY`；所有模型调用经后端代理。  
+- `.env` 与用户输入均 **不要提交到 GitHub**。仓库仅保留 `.env.example` 模板。
 
 ---
 
-## 12. API 概览
+## 12. 常见问题排查
+
+| 现象 | 可能原因 | 处理建议 |
+|------|----------|----------|
+| **401 Unauthorized** | API Key 未配置、拼写错误，或仍为占位值 | 检查根目录 `.env` 中的 `OPENAI_API_KEY`；访问 `/api/health` 查看 `ready` |
+| **429 Too Many Requests** | 模型接口限流、配额用尽或账户余额不足 | 降低调用频率；更换模型；在服务商控制台查看用量与账单 |
+| **浏览器 CORS 报错** | 前端源未加入后端 `CORS_ORIGINS` | 在 `.env` 中将 `http://localhost:5173` 写入 `CORS_ORIGINS` 后重启后端 |
+| **端口被占用** | 8000 / 5173 已被其他进程使用 | 关闭占用进程，或后端改用 `--port 8002` 并同步 `frontend/.env` 中的 `VITE_API_BASE_URL` |
+| **`ModuleNotFoundError: No module named 'src'`** | 未在项目根目录启动，或虚拟环境未激活 | 确认当前目录含 `app.py`；执行 `pip install -r requirements.txt`；激活 `.venv` 后再启动 |
+| **`ready: false`（health）** | `OPENAI_MODEL` 仍为占位值或 Key 无效 | 对照 `.env.example` 填写真实 `OPENAI_MODEL` 与有效 Key |
+| **前端请求失败 / 连不上后端** | `VITE_API_BASE_URL` 与后端端口不一致 | 确认 `frontend/.env` 为 `http://localhost:8000` 且后端已启动 |
+| **生成超时或长时间无响应** | 模型响应较慢 | 等待后重试；本地可先调小需求文本验证链路 |
+
+仍无法解决时，可附带 `/api/health` 返回、浏览器 Network 面板截图与后端终端日志进行排查。
+
+---
+
+## 13. API 概览
 
 ### Copilot（主流程）
 
@@ -361,7 +424,7 @@ VITE_API_BASE_URL=http://127.0.0.1:8001
 
 ---
 
-## 13. 当前限制
+## 14. 当前限制
 
 | 限制项 | 说明 |
 |--------|------|
@@ -369,12 +432,12 @@ VITE_API_BASE_URL=http://127.0.0.1:8001
 | **生成质量** | 依赖所选模型能力与 Prompt 设计，需人工终审 |
 | **数据闭环** | 暂无真实用户行为数据、A/B 实验与效果看板 |
 | **高级内容包** | 8 模块模式可继续深化模块间一致性与联动校验 |
-| **在线 Demo** | 暂未部署公网实例，需本地配置 API 后体验 |
+| **运行方式** | 需在本地配置 API Key 后启动，暂无托管在线 Demo |
 | **流式体验** | 当前为一次性返回，尚未支持 SSE 流式输出 |
 
 ---
 
-## 14. 安全与隐私说明
+## 15. 安全与隐私说明
 
 请勿将以下内容提交到公开仓库或截图外泄：
 
@@ -391,7 +454,7 @@ VITE_API_BASE_URL=http://127.0.0.1:8001
 ---
 
 
-## 15. Roadmap
+## 16. Roadmap
 
 - [ ] **SSE 流式生成**：降低长文本等待焦虑，展示生成进度
 - [ ] **历史项目保存**：SQLite 存储多轮会话与导出记录
@@ -406,7 +469,7 @@ VITE_API_BASE_URL=http://127.0.0.1:8001
 
 ---
 
-## 16. License
+## 17. License
 
 本项目采用 [MIT License](LICENSE) 开源。如仓库尚未包含 `LICENSE` 文件，可按 MIT 惯例补充。
 
