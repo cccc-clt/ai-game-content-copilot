@@ -72,8 +72,7 @@
 | ![评分](docs/screenshots/evaluation.png) | ![优化](docs/screenshots/optimize.png) | ![内容包](docs/screenshots/legacy-package.png) |
 
 
-**推荐演示路径（约 2 分钟）**  
-`示例 1：角色台词` → `生成 A/B/C` → 选择 **版本 B** → `继续优化` → `导出 Markdown`
+
 
 ---
 
@@ -278,7 +277,7 @@ git clone https://github.com/cccc-clt/AI-Game-Content-Copilot.git
 cd AI-Game-Content-Copilot
 ```
 
-> 将 `<your-username>` 替换为你的 GitHub 用户名；若本地已有源码，直接进入项目根目录即可。
+
 
 ### 10.2 配置后端环境变量
 
