@@ -220,9 +220,9 @@ AI Game Content Copilot/
 ├── app.py                      # FastAPI 入口（uvicorn app:app）
 ├── requirements.txt
 ├── .env.example                # 后端环境变量模板
+├── .gitignore
 ├── README.md
-├── AGENTS.md
-├── src/
+├── src/                        # 后端主代码（请在此开发）
 │   ├── api/
 │   │   ├── main.py             # 应用装配与 CORS
 │   │   └── routes/
@@ -230,18 +230,29 @@ AI Game Content Copilot/
 │   │       ├── copilot.py      # Copilot 主流程 API
 │   │       └── legacy.py       # 8 模块内容包 API
 │   ├── config/settings.py      # .env 加载
-│   ├── prompts/                # 分场景 Prompt + Evaluation + Optimize
-│   ├── schemas/                # Pydantic 请求/响应模型
-│   ├── services/               # 生成、评分、优化、导出
+│   ├── prompts/                # 分场景 Prompt；legacy/ 为内容包模板
+│   ├── schemas/                  # copilot / legacy Pydantic 模型
+│   ├── services/                 # 生成、评分、优化、导出；legacy/ 为内容包
 │   └── utils/
 ├── frontend/
 │   ├── .env.example
 │   ├── package.json
+│   ├── vite.config.ts
+│   ├── public/
 │   └── src/
-│       ├── components/copilot/ # Copilot 工作区 UI
-│       └── components/legacy/  # 高级内容包 UI
-├── docs/screenshots/           # README 截图
-└── backend/                    # Legacy 兼容 shim（新代码请写在 src/）
+│       ├── api/                  # client.ts、baseUrl.ts
+│       ├── components/
+│       │   ├── copilot/          # Copilot 工作区
+│       │   ├── legacy/           # 8 模块内容包 UI
+│       │   ├── layout/           # Header、Footer、HomeHero
+│       │   ├── sections/         # 内容包结果分区卡片
+│       │   └── ...
+│       ├── types/
+│       └── utils/export/
+├── docs/screenshots/             # README 截图
+└── backend/                      # 遗留目录（与 src 重复，仅作兼容；新代码勿写此处）
+    └── app/
+        └── main.py               # 旧路径 shim → src.api.main:app
 ```
 
 ---
