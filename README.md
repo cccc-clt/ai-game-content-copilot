@@ -273,8 +273,8 @@ AI Game Content Copilot/
 ### 10.1 克隆仓库并进入目录
 
 ```bash
-git clone https://github.com/cccc-clt/AI-Game-Content-Copilot.git
-cd AI-Game-Content-Copilot
+git clone https://github.com/cccc-clt/ai-game-content-copilot.git
+cd ai-game-content-copilot
 ```
 
 
